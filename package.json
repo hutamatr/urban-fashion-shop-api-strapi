@@ -1,0 +1,33 @@
+{
+  "name": "urban-fashion-shop-api-strapi",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Urban Fashion Shop API",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@strapi/plugin-documentation": "^4.12.4",
+    "@strapi/plugin-i18n": "4.12.4",
+    "@strapi/plugin-users-permissions": "4.12.4",
+    "@strapi/strapi": "4.12.4",
+    "pg": "8.8.0",
+    "strapi-plugin-duplicate-button": "^1.1.13",
+    "stripe": "^12.17.0"
+  },
+  "author": {
+    "name": "hutamatr"
+  },
+  "strapi": {
+    "uuid": "96a0014d-2178-4d15-9335-920495fb9ad1"
+  },
+  "engines": {
+    "node": ">=16.0.0 <=20.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT"
+}
