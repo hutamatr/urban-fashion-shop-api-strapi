@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2023-08-11T20:27:27.032Z"
+    "x-generation-date": "2023-08-12T20:50:04.512Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -25,7 +25,7 @@
   },
   "servers": [
     {
-      "url": "http://157.245.60.32/api",
+      "url": "https://urban-api.htma.site/api",
       "description": "Development server"
     }
   ],
