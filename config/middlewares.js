@@ -7,6 +7,7 @@ module.exports = [
       origin: [
         "https://urban-fashion.htma.site",
         "https://urban-api.htma.site",
+	"http://127.0.0.1:5173"
       ],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
       headers: ["Content-Type", "Authorization", "Origin", "Accept"],
