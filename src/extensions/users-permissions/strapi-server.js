@@ -27,12 +27,12 @@ const issueJWT = (payload, jwtOptions = {}) => {
 
 // verify the refreshToken by using the REFRESH_SECRET from the .env
 const verifyRefreshToken = (token) => {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     jwt.verify(
       token,
       process.env.REFRESH_SECRET,
       {},
-      function (err, tokenPayload = {}) {
+      (err, tokenPayload = {}) => {
         if (err) {
           return reject(new Error("Invalid token."));
         }
@@ -107,6 +107,7 @@ module.exports = (plugin) => {
           signed: true,
           overwrite: true,
         });
+
         ctx.send({
           status: "Authenticated",
           jwt: issueJWT(
