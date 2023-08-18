@@ -188,6 +188,122 @@ module.exports = (plugin) => {
     }
   };
 
+  plugin.controllers.auth.register = async (ctx) => {
+    const pluginStore = await strapi.store({
+      type: "plugin",
+      name: "users-permissions",
+    });
+
+    const settings = await pluginStore.get({ key: "advanced" });
+
+    if (!settings.allow_register) {
+      throw new ApplicationError("Register action is currently disabled");
+    }
+
+    const params = {
+      ..._.omit(ctx.request.body, [
+        "confirmed",
+        "blocked",
+        "confirmationToken",
+        "resetPasswordToken",
+        "provider",
+        "id",
+        "createdAt",
+        "updatedAt",
+        "createdBy",
+        "updatedBy",
+        "role",
+      ]),
+      provider: "local",
+    };
+
+    // @ts-ignore
+    await validateRegisterBody(params);
+
+    const role = await strapi
+      .query("plugin::users-permissions.role")
+      .findOne({ where: { type: settings.default_role } });
+
+    if (!role) {
+      throw new ApplicationError("Impossible to find the default role");
+    }
+
+    // @ts-ignore
+    const { email, username, provider } = params;
+
+    const identifierFilter = {
+      $or: [
+        { email: email.toLowerCase() },
+        { username: email.toLowerCase() },
+        { username },
+        { email: username },
+      ],
+    };
+
+    const conflictingUserCount = await strapi
+      .query("plugin::users-permissions.user")
+      .count({
+        where: { ...identifierFilter, provider },
+      });
+
+    if (conflictingUserCount > 0) {
+      throw new ApplicationError("Email or Username are already taken");
+    }
+
+    if (settings.unique_email) {
+      const conflictingUserCount = await strapi
+        .query("plugin::users-permissions.user")
+        .count({
+          where: { ...identifierFilter },
+        });
+
+      if (conflictingUserCount > 0) {
+        throw new ApplicationError("Email or Username are already taken");
+      }
+    }
+
+    const newUser = {
+      ...params,
+      role: role.id,
+      email: email.toLowerCase(),
+      username,
+      confirmed: !settings.email_confirmation,
+    };
+
+    const user = await getService("user").add(newUser);
+
+    const sanitizedUser = await sanitizeUser(user, ctx);
+
+    if (settings.email_confirmation) {
+      try {
+        await getService("user").sendConfirmationEmail(sanitizedUser);
+      } catch (err) {
+        throw new ApplicationError(err.message);
+      }
+
+      return ctx.send({ user: sanitizedUser });
+    }
+
+    const jwt = getService("jwt").issue(_.pick(user, ["id"]));
+    const refreshToken = issueRefreshToken({ id: user.id });
+    ctx.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24 * 14, // 14 Day Age
+      domain:
+        process.env.NODE_ENV === "development"
+          ? process.env.CLIENT_URL_LOCAL
+          : process.env.CLIENT_URL_PROD,
+      sameSite: "strict",
+    });
+
+    return ctx.send({
+      jwt,
+      refreshToken,
+      user: sanitizedUser,
+    });
+  };
+
   /**
    * Creating a new token based on the refreshCookie
    *
@@ -195,6 +311,7 @@ module.exports = (plugin) => {
    * @param {*} ctx
    * @returns
    */
+
   plugin.controllers.auth["refreshToken"] = async (ctx) => {
     // get token from the POST request
     const store = await strapi.store({
