@@ -11,7 +11,7 @@ module.exports = [
         "http://localhost:5173",
         "http://localhost:1337",
       ],
-      // methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
       headers: [
         "Access-Control-Allow-Headers",
         "withCredentials",
@@ -24,7 +24,7 @@ module.exports = [
         "Access-Control-Request-Headers",
       ],
       credentials: true,
-      // keepHeaderOnError: true,
+      keepHeaderOnError: true,
     },
   },
   "strapi::poweredBy",
